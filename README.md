@@ -12,3 +12,5 @@ Hummigbirds have a couple of 'bald spots' where hair doen't grow. Typically, mos
 I used two Pulse Sensors. One was just a normal Pulse Sensor, and the other I modified by taking off the LED. I did this in order to test a reflective Pulse Sensor (the way they normally work) and a transmissive Pulse Sensor, where I used the light from the normal Pulse Sensor to send a signal through the body of the bird. It became clear very soon that the reflective Pulse Sensor was the best option.
 
 We did se a signal when we placed the Pulse Sensor on the belly bald spot, however it was difficult to tell if we were reading the heartbeat or the breathing. Placing the Pulse Sensor on the bald spot behind the crop was much more successful, and we think we did see a heartbeat in that location.
+
+Here is a [LINK](https://www.dropbox.com/sh/dgatqx7pgcjl1rp/AABGw35ZrMt65FjiA4dyHX-6a?dl=0) to a dropbox that has videos from the experiment.
