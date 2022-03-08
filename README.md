@@ -19,7 +19,7 @@ The signal of interest is likely in the hundreds of hertz. Here's a ball park:
 
 the IBI value is the time between beats. the IBI associated with a heart rate of 800 BPM is 75 milliseconds (0.075 Seconds). That 800 BPM number I just pulled out of the air. It could be faster, based on the liturature. So we need a high sample rate. 
 
-I'm starting with a Teensy 3.6 and the [ExFatLogger.ino](https://github.com/greiman/SdFat/tree/master/examples/ExFatLogger) example to get high speed SD card writing. The basic Arduino code is there.
+I'm starting with a Teensy 3.6 and the [ExFatLogger.ino](https://github.com/greiman/SdFat/tree/master/examples/ExFatLogger) example to get high speed SD card writing. The basic Arduino code is [there](https://github.com/biomurph/DINACON_Hummingbird_Heartbeats/tree/2022/2022/Arduino/humm_beat_sensor_01).
 
 ## Hardware
 Coming sooooon 	
