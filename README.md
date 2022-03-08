@@ -1,4 +1,31 @@
-# DINACON Humming Bird Pulse Sensor
+# Humming Bird Pulse Sensor
+
+Hi.
+This project is also on [Hackaday.io](https://hackaday.io/project/184261-hummingbird-heartbeats)
+
+Adding files as they become publishable (read: workish)
+
+## Basic Shape
+What you have here is a Teensy 3.6 that reads 5 analog inputs at a very high rate and stores the data to SD card. 
+
+-	Sensors
+	- Pulse Sensor 2x
+	- Analog Accelerometer
+
+The signal of interest is likely in the hundreds of hertz. Here's a ball park:
+
+	Hummingbird Heart Rate 800 Beats Per Minute (BPM)
+	BPM = 60 Seconds / Inter-beat Interval (IBI)
+
+the IBI value is the time between beats. the IBI associated with a heart rate of 800 BPM is 75 milliseconds (0.075 Seconds). That 800 BPM number I just pulled out of the air. It could be faster, based on the liturature. So we need a high sample rate. 
+
+I'm starting with a Teensy 3.6 and the [ExFatLogger.ino](https://github.com/greiman/SdFat/tree/master/examples/ExFatLogger) example to get high speed SD card writing. The basic Arduino code is there.
+
+## Hardware
+Coming sooooon 	
+
+
+# Below is readme from 2019
 
 Helping [Jay Falk](https://www.birdmorph.com/) to measure Humming Bird Heartbeats with [Pulse Sensor](www.pulsesensor.com)
 Jay is a scientist who studies hummingbirds in Gamboa, Panama. It was recently discovered that hummingbirds (some, not all?) can vocalize, that is make sounds, up to 15KHz. At the same time, it is generally believed that birds can only hear sounds up to 8KHz. Jay wants to know if hummingbirds can hear in the higher registers that they make sounds in. His thought is that maybe the birds heart rate changes when they hear another bird call, and that if he can measure heart rate this might be a way to prove that they can hear in the higher registers.
