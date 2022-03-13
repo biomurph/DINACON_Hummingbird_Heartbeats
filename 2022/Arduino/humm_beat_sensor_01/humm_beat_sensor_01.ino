@@ -14,82 +14,9 @@
 #include "SdFat.h"
 #include "FreeStack.h"
 #include "HummBird.h"
+#include <TimeLib.h>
 
 
-
-//==============================================================================
-// Replace logRecord(), printRecord(), and ExFatLogger.h for your sensors.
-void logRecord(data_t* data, uint16_t overrun) {
-  if (overrun) {
-    // Add one since this record has no adc data. Could add overrun field.
-    overrun++;
-    data->adc[0] = 0X8000 | overrun;
-  } else {
-    for (size_t i = 0; i < ADC_COUNT; i++) {
-      data->adc[i] = analogRead(i);
-    }
-  }
-}
-//------------------------------------------------------------------------------
-void printRecord(Print* pr, data_t* data) {
-  static uint32_t nr = 0;
-  if (!data) {
-    pr->print(F("LOG_INTERVAL_USEC,"));
-    pr->println(LOG_INTERVAL_USEC);
-    pr->print(F("Sample Counter"));
-    for (size_t i = 0; i < ADC_COUNT; i++) {
-//      pr->print(F(",channel"));
-//      pr->print(i);
-      pr->print(getChannelString(i));
-    }
-    pr->println();
-    nr = 0;
-    return;
-  }
-  if (data->adc[0] & 0x8000) {
-    uint16_t n = data->adc[0] & 0x7FFF;
-    nr += n;
-    pr->print(F("-1,"));
-    pr->print(n);
-    pr->println(F(",overuns"));
-  } else {
-    pr->print(nr++);
-    for (size_t i = 0; i < ADC_COUNT; i++) {
-      pr->write(',');
-      pr->print(data->adc[i]);
-    }
-    pr->println();
-  }
-}
-
-
-//==============================================================================
-String getChannelString(int i){
-  String s = "";
-  switch(i){
-    case 0:
-      s = F(",Pulse 1");
-      break;
-    case 1:
-      s = F(",Pulse 2");
-      break;
-    case 2:
-      s = F(",Accel X");
-      break;
-    case 3:
-      s = F(",Accel Y");
-      break;
-    case 4:
-      s = F(",Accel Z");
-      break;
-    default: 
-      s = F(",Channel Name Error");
-      break;
-  }
-  return s;
-}
-
-//==============================================================================
 const uint64_t PREALLOCATE_SIZE  =  (uint64_t)PREALLOCATE_SIZE_MiB << 20;
 // Max length of file name including zero byte.
 #define FILE_NAME_DIM 40
@@ -116,31 +43,16 @@ sd_t sd;
 
 file_t binFile;
 file_t csvFile;
-// You may modify the filename.  Digits before the dot are file versions.
-char binName[] = "Humm_00.bin";
-//------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
 #define error(s) sd.errorHalt(&Serial, F(s))
 #define dbgAssert(e) ((e) ? (void)0 : error("assert " #e))
-//-----------------------------------------------------------------------------
-
-
-
-
-
 
 //------------------------------------------------------------------------------
-void printUnusedStack() {
-#if HAS_UNUSED_STACK
-  Serial.print(F("\nUnused stack: "));
-  Serial.println(UnusedStack());
-#endif  // HAS_UNUSED_STACK
-}
+
 
 //------------------------------------------------------------------------------
 void testSensor() {
-  const uint32_t interval = 200000;
+  const uint32_t interval = 50000;
   int32_t diff;
   data_t data;
   clearSerialInput();
@@ -159,14 +71,18 @@ void testSensor() {
 }
 //------------------------------------------------------------------------------
 void setup() {
+  setSyncProvider(getTeensy3Time);
   if (ERROR_LED_PIN >= 0) {
     pinMode(ERROR_LED_PIN, OUTPUT);
     digitalWrite(ERROR_LED_PIN, HIGH);
   }
-  pinMode(LED_PIN,OUTPUT); analogWrite(LED_PIN,255);
+  pinMode(SAMPLE_CLK_PIN,OUTPUT); digitalWrite(SAMPLE_CLK_PIN,LOW);
+  sampleClockPinState = false;
+  pinMode(BLU_LED,OUTPUT); analogWrite(BLU_LED,255);
+  pinMode(RED_LED,OUTPUT); digitalWrite(RED_LED,LOW);
   pinMode(BUTTON_PIN,INPUT_PULLUP);
   buttonValue = lastButtonValue = digitalRead(BUTTON_PIN);
-
+  analogReadResolution(12);  // crank up the bits
   
   Serial.begin(2000000);
   // Wait for USB Serial
@@ -175,9 +91,13 @@ void setup() {
   }
   delay(1000);
   Serial.println(F("Hummingbird Beats v1"));
-//  while (!Serial.available()) {
-//    yield();
-//  }
+//  Verify the RTC
+  if (timeStatus()!= timeSet) {
+      Serial.println("Unable to sync with the RTC");
+    } else {
+    Serial.println("RTC has set the system time");
+  }
+  
   FillStack();
 #if !ENABLE_DEDICATED_SPI
   Serial.println(F(
@@ -192,28 +112,25 @@ void setup() {
   if (!sd.begin(SD_CONFIG)) {
     sd.initErrorHalt(&Serial);
   }
-//#if USE_RTC
-//  if (!rtc.begin()) {
-//    error("rtc.begin failed");
-//  }
-//  if (!rtc.isrunning()) {
-//    // Set RTC to sketch compile date & time.
-//    // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-//    error("RTC is NOT running!");
-//  }
-//  // Set callback
-//  FsDateTime::setCallback(dateTime);
-//#endif  // USE_RTC
+
+  FsDateTime::setCallback(dateTime);
 
   lastFadeTime = millis();
   printUnusedStack();
   clearSerialInput();
   printControl();
 }
+
+  
 //------------------------------------------------------------------------------
 void loop() {
   // Read any Serial data.
   fadeLED(millis());
   getButtonState();
   serialCheck();
+  if(isRunning){
+    createBinFile(); logData();
+    // logData jumps to a loop that waits for Serial to break. Also breakable by 
+    isRunning = false;
+  }
 }

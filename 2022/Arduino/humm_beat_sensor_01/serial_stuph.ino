@@ -9,25 +9,29 @@ void serialCheck(){
     switch(inChar){
       case 'b':
         openBinFile(); break;
-      case'c':
+      case 'c':
         if (createCsvFile()) {
           binaryToCsv();
         }
         break;
       case 'l':
-        Serial.println(F("ls:"));
+        Serial.print(F("ls: ")); digitalClockDisplay();
         sd.ls(&Serial, LS_DATE | LS_SIZE);
+        printUnusedStack();
         break;
       case 'p':
         printData(); break;
       case 'r':
-        createBinFile(); logData(); break;
+        isRunning = true; fadeLED(millis());
+        break;
       case 't':
         testSensor(); break;
       case '?':
-        printControl();
+        printControl(); break;
       default:
-        Serial.println(F("Invalid entry")); break;
+        Serial.print("'"); Serial.print(inChar); Serial.print("'");
+        Serial.println(F(" is not a command")); 
+        printControl(); break;
     }
   }
 }
@@ -45,6 +49,13 @@ void printControl(){
   Serial.println(F("p - print data to Serial"));
   Serial.println(F("r - record data"));
   Serial.println(F("t - test without logging"));
+  Serial.println(F("type a number to set record duration"));
+  Serial.println(F("\t 1 - 5 seconds"));
+  Serial.println(F("\t 2 - 10 seconds"));
+  Serial.println(F("\t 3 - 15 seconds"));
+  Serial.println(F("\t 4 - 20 seconds"));
+  Serial.print(F("\t current record duration: "));
+  Serial.println(recordDuration);
 }
 
 //------------------------------------------------------------------------------
@@ -101,3 +112,4 @@ void clearSerialInput() {
     }
   } while (micros() - m < 10000);
 }
+//------------------------------------------------------------------------------

@@ -18,7 +18,7 @@ struct data_t {
 // Try 4000 with SAMD Zero boards.
 
 // LOG INTERVAL DETERMINES SAMPLE RATE
-const uint32_t LOG_INTERVAL_USEC = 500;
+const uint32_t LOG_INTERVAL_USEC = 500; // 500uS = 2kHz
 #define FIFO_SIZE_SECTORS 16
 // Preallocate 1GiB file.
 const uint32_t PREALLOCATE_SIZE_MiB = 1024UL;
@@ -37,8 +37,10 @@ const uint32_t PREALLOCATE_SIZE_MiB = 1024UL;
 // LED to light if overruns occur.
 #define ERROR_LED_PIN 13
 const uint8_t SD_CS_PIN = 4;  // SS;
-#define BUTTON_PIN  35
-#define LED_PIN 10
+#define BUTTON_PIN  29
+#define BLU_LED 10
+#define RED_LED 3
+#define SAMPLE_CLK_PIN 24
 #define LED_CYCLE 256*3 // half cycle led fade power of 2 please
 #define RECORD_OFF 1
 #define RECORD_ON  2
@@ -48,17 +50,20 @@ const uint8_t SD_CS_PIN = 4;  // SS;
 #define ACCEL_Y 3
 #define ACCEL_Z 4
 
+#define RECORD_DURATION 5000  // time to record data in milliseconds
 
 
 unsigned long lastFadeTime;
 int LEDfadeValue = 255;
 int LEDfadeTime = LED_CYCLE/256;
 boolean fadeUp = false;
-
-
+boolean sampleClockPinState = false;
+boolean isRunning = false;
+int recordDuration = -1;
 int lastButtonValue, buttonValue;
 int buttonState = RECORD_OFF;
-
+unsigned long timeIn;
+int timeOut;
 
 
 #endif

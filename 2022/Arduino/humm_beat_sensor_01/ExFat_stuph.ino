@@ -1,7 +1,91 @@
+//==============================================================================
+// Replace logRecord(), printRecord(), and ExFatLogger.h for your sensors.
+int logRecord(data_t* data, uint16_t overrun) {
+  if (overrun) {
+    // Add one since this record has no adc data. Could add overrun field.
+    overrun++;
+    data->adc[0] = 0X8000 | overrun;
+    return -1;
+  } else {
+    timeIn = micros();
+    for (size_t i = 0; i < ADC_COUNT; i++) {
+      data->adc[i] = analogRead(i);
+    }
+  }
+  timeOut = micros() - timeIn;
+  return timeOut;
+}
+//------------------------------------------------------------------------------
+void printRecord(Print* pr, data_t* data) {
+  static uint8_t nr = 0;
+  if (!data) {
+    pr->print(F("LOG_INTERVAL_USEC,"));
+    pr->println(LOG_INTERVAL_USEC);
+    pr->print(F("Sample Counter"));
+    for (size_t i = 0; i < ADC_COUNT; i++) {
+      pr->print(getChannelString(i));
+    }
+    pr->println();
+    nr = 0;
+    return;
+  }
+  if (data->adc[0] & 0x8000) {
+    uint16_t n = data->adc[0] & 0x7FFF;
+    nr += n;
+    pr->print(F("-1,"));
+    pr->print(n);
+    pr->println(F(",overuns"));
+  } else {
+    pr->print(nr++);
+    for (size_t i = 0; i < ADC_COUNT; i++) {
+      pr->write(',');
+      pr->print(data->adc[i]);
+    }
+    pr->println();
+  }
+}
 
 
+//==============================================================================
+String getChannelString(int i){
+  String s = "";
+  switch(i){
+    case 0:
+      s = F(",Pulse 1");
+      break;
+    case 1:
+      s = F(",Pulse 2");
+      break;
+    case 2:
+      s = F(",Accel X");
+      break;
+    case 3:
+      s = F(",Accel Y");
+      break;
+    case 4:
+      s = F(",Accel Z");
+      break;
+    default: 
+      s = F(",Channel Name Error");
+      break;
+  }
+  return s;
+}
+
+//==============================================================================
+
+// You may modify the filename.  Digits before the dot are file versions.
+char binName[] = "Humm_00.bin";
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+
+
+
+
+
 void openBinFile() {
   char name[FILE_NAME_DIM];
   clearSerialInput();
@@ -30,6 +114,8 @@ void logData() {
   int32_t maxDelta = 0;
   uint32_t maxLogMicros = 0;
   uint32_t maxWriteMicros = 0;
+  uint32_t analogReadMicros;
+  uint32_t maxAnalogReadMicros = 0;
   size_t maxFifoUse = 0;
   size_t fifoCount = 0;
   size_t fifoHead = 0;
@@ -57,10 +143,14 @@ void logData() {
 
   // Time to log next record.
   uint32_t logTime = micros();
+  // Here's where it locks up
   while (true) {
+    digitalWrite(RED_LED,HIGH);
+    analogWrite(BLU_LED,0);
     // Time for next data record.
     logTime += LOG_INTERVAL_USEC;
-
+    sampleClockPinState = !sampleClockPinState;
+    digitalWrite(SAMPLE_CLK_PIN,sampleClockPinState);
     // Wait until time to log data.
     delta = micros() - logTime;
     if (delta > 0) {
@@ -68,13 +158,14 @@ void logData() {
       Serial.println(delta);
       error("Rate too fast");
     }
-    while (delta < 0) {
+    while (delta < 0) {   // this is where the delay happens
       delta = micros() - logTime;
     }
 
     if (fifoCount < FIFO_DIM) {
       uint32_t m = micros();
-      logRecord(fifoData + fifoHead, overrun);
+      analogReadMicros = logRecord(fifoData + fifoHead, overrun);
+      if(analogReadMicros > maxAnalogReadMicros){ maxAnalogReadMicros = analogReadMicros; }
       m = micros() - m;
       if (m > maxLogMicros) {
         maxLogMicros = m;
@@ -121,9 +212,13 @@ void logData() {
         maxFifoUse = fifoCount;
       }
       fifoCount -= nw;
-      if (Serial.available()) {
-        break;
-      }
+      // vvvvvvvvvvvvvvv
+      // escape routines
+      // ^^^^^^^^^^^^^^^
+      if (Serial.available()) { break; }
+////     if (getButtonState() != RECORD_ON) { break; } // needs reliable fast switch to impliment 
+// RECORD_DURATION set in HummBird.h
+      if (millis() - m >= RECORD_DURATION) { break; }
     }
   }
   Serial.print(F("\nLog time: "));
@@ -150,6 +245,8 @@ void logData() {
   Serial.print(F(" micros\nmaxDelta: "));
   Serial.print(maxDelta);
   Serial.println(F(" micros"));
+  Serial.print(F("maxAnalogReadMicros: "));
+  Serial.println(maxAnalogReadMicros);
 }
 
 //-------------------------------------------------------------------------------
@@ -249,4 +346,12 @@ void createBinFile() {
   Serial.print(F("preAllocated: "));
   Serial.print(PREALLOCATE_SIZE_MiB);
   Serial.println(F(" MiB"));
+}
+
+
+void printUnusedStack() {
+#if HAS_UNUSED_STACK
+  Serial.print(F("\nUnused stack: "));
+  Serial.println(UnusedStack());
+#endif  // HAS_UNUSED_STACK
 }

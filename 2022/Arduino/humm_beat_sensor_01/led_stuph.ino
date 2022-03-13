@@ -2,6 +2,12 @@
 
 
 int fadeLED(unsigned long callTime){
+  if(isRunning){
+    analogWrite(BLU_LED,0);
+    digitalWrite(RED_LED,HIGH);
+    return -1;
+  }
+  digitalWrite(RED_LED,LOW);
   if(callTime - lastFadeTime > LEDfadeTime){
     if(fadeUp){
       LEDfadeValue++;
@@ -16,7 +22,7 @@ int fadeLED(unsigned long callTime){
       LEDfadeValue = 255;
       fadeUp = false;
     }
-    analogWrite(LED_PIN,LEDfadeValue);
+    analogWrite(BLU_LED,LEDfadeValue);
     lastFadeTime = callTime;
   }
   return LEDfadeValue;

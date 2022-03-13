@@ -22,8 +22,30 @@ the IBI value is the time between beats. the IBI associated with a heart rate of
 I'm starting with a Teensy 3.6 and the [ExFatLogger.ino](https://github.com/greiman/SdFat/tree/master/examples/ExFatLogger) example to get high speed SD card writing. The basic Arduino code is [there](https://github.com/biomurph/DINACON_Hummingbird_Heartbeats/tree/2022/2022/Arduino/humm_beat_sensor_01).
 
 ## Hardware
-Coming sooooon 	
+Will not work if SD card is not installed. Unplug device, install SD card, plug in device.
 
+## User Guide
+
+Outline of use. 
+The interface allows you to access and manipulate binary files. 
+Hardware is powered via USB, and requires a connected Terminal or Data Visualizer to begin function. When you plug in the USB *without Terminal or Data Visualizer* the BLUE LED will be steady on. Once the port is connected, the BLUE LED will pulse/fade nicely saying it is ready.
+
+- Record sensor data to a binary file
+- List all the files in memory
+- Open an existing binary file
+- Convert a binary file and save it as a .csv file
+- Convert a binary file and print it to the serial port
+- Read sensor data without logging
+
+It is recommended to follow a specific series of steps to use the interface efficiently. Though it is not possible to screw it up really bad, it can be confusing without this guide. Here are the steps for success:
+
+1. Insert a micro SC card that is formatted as ExFat (super important)
+2. Open up a serial port visualizer window
+3. Plug into USB computer
+4. other stuff
+5. After copying the data you want off the micro SD, make sure to empty your trash on the computer before unmounting the disk.
+
+	
 
 # Below is readme from 2019
 
