@@ -28,7 +28,7 @@ Will not work if SD card is not installed. Unplug device, install SD card, plug 
 
 Outline of use. 
 The interface allows you to access and manipulate binary files. 
-Hardware is powered via USB, and requires a connected Terminal or Data Visualizer to begin function. When you plug in the USB *without Terminal or Data Visualizer* the BLUE LED will be steady on. Once the port is connected, the BLUE LED will pulse/fade nicely saying it is ready.
+Hardware is powered via USB, and requires a connected Terminal or Data Visualizer to begin function. When you plug in the USB *without Terminal or Data Visualizer* the BLUE LED will be steady on. Once the port is connected, the BLUE LED will pulse/fade nicely saying it is ready. Set your serial port to 2000000 baud. 
 
 - Record sensor data to a binary file
 - List all the files in memory
@@ -36,6 +36,9 @@ Hardware is powered via USB, and requires a connected Terminal or Data Visualize
 - Convert a binary file and save it as a .csv file
 - Convert a binary file and print it to the serial port
 - Read sensor data without logging
+- Select duration of recording
+	- 5, 10, 15, 20 Seconds
+	- Stored in non volatile EEPROM
 
 It is recommended to follow a specific series of steps to use the interface efficiently. Though it is not possible to screw it up really bad, it can be confusing without this guide. Here are the steps for success:
 

@@ -9,12 +9,15 @@
 // Example to demonstrate write latency for preallocated exFAT files.
 // I suggest you write a PC program to convert very large bin files.
 //
-// The maximum data rate will depend on the quality of your SD,
+// The maximum data rate will depend on the quality of your SD
 // the size of the FIFO, and using dedicated SPI.
+// March, 2022: using ScanDisk EDGE 16GB micro with UHS 10
+
 #include "SdFat.h"
-#include "FreeStack.h"
+#include "FreeStack.h"  // this is legacy from the example. not sure how useful.
 #include "HummBird.h"
-#include <TimeLib.h>
+#include <TimeLib.h>  // used to time stamp files
+#include <EEPROM.h>   // storing record duration.  or other things?
 
 
 const uint64_t PREALLOCATE_SIZE  =  (uint64_t)PREALLOCATE_SIZE_MiB << 20;
@@ -115,6 +118,7 @@ void setup() {
 
   FsDateTime::setCallback(dateTime);
 
+  recordDuration = setRecordDuration(STARTUP_DURATION);
   lastFadeTime = millis();
   printUnusedStack();
   clearSerialInput();

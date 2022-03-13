@@ -36,6 +36,8 @@ const uint32_t PREALLOCATE_SIZE_MiB = 1024UL;
 
 // LED to light if overruns occur.
 #define ERROR_LED_PIN 13
+#define DEFAULT_RECORD_DURATION 5000
+#define STARTUP_DURATION  -3
 const uint8_t SD_CS_PIN = 4;  // SS;
 #define BUTTON_PIN  29
 #define BLU_LED 10
@@ -49,8 +51,9 @@ const uint8_t SD_CS_PIN = 4;  // SS;
 #define ACCEL_X 2
 #define ACCEL_Y 3
 #define ACCEL_Z 4
+#define DURATION_ADDRESS 1
 
-#define RECORD_DURATION 5000  // time to record data in milliseconds
+//#define RECORD_DURATION 5000  // time to record data in milliseconds
 
 
 unsigned long lastFadeTime;
@@ -59,7 +62,7 @@ int LEDfadeTime = LED_CYCLE/256;
 boolean fadeUp = false;
 boolean sampleClockPinState = false;
 boolean isRunning = false;
-int recordDuration = -1;
+int recordDuration = 5000;
 int lastButtonValue, buttonValue;
 int buttonState = RECORD_OFF;
 unsigned long timeIn;

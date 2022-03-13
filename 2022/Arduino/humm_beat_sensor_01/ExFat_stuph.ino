@@ -216,9 +216,10 @@ void logData() {
       // escape routines
       // ^^^^^^^^^^^^^^^
       if (Serial.available()) { break; }
-////     if (getButtonState() != RECORD_ON) { break; } // needs reliable fast switch to impliment 
-// RECORD_DURATION set in HummBird.h
-      if (millis() - m >= RECORD_DURATION) { break; }
+////     if (getButtonState() != RECORD_ON) { break; } // DO NOT USE needs reliable fast switch to impliment 
+
+// recordDuration set in EEPROM or update via serial port
+      if (millis() - m >= recordDuration) { break; }
     }
   }
   Serial.print(F("\nLog time: "));

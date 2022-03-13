@@ -7,6 +7,8 @@ void serialCheck(){
     char inChar = Serial.read();
     Serial.println();
     switch(inChar){
+      // ignore endings and beginnings
+      case '\n': case '\r': case '\t': break;
       case 'b':
         openBinFile(); break;
       case 'c':
@@ -26,17 +28,38 @@ void serialCheck(){
         break;
       case 't':
         testSensor(); break;
+      case '1':
+        recordDuration = setRecordDuration(5000); 
+        printRecordDruation();
+        break;
+      case '2':
+        recordDuration = setRecordDuration(10000);  
+        printRecordDruation();
+        break;
+      case '3':
+        recordDuration = setRecordDuration(15000); 
+        printRecordDruation();
+        break;
+      case '4':
+        recordDuration = setRecordDuration(20000); 
+        printRecordDruation();
+        break;
       case '?':
         printControl(); break;
       default:
         Serial.print("'"); Serial.print(inChar); Serial.print("'");
         Serial.println(F(" is not a command")); 
-        printControl(); break;
+        Serial.println(F("send '?' to list commands")); 
+//        printControl(); // need this here?
+        break;
     }
   }
 }
 
-
+void printRecordDruation(){
+  Serial.print(F("current record duration: "));
+  Serial.println(recordDuration/1000);
+}
 void printControl(){
   if (ERROR_LED_PIN >= 0) {
     digitalWrite(ERROR_LED_PIN, LOW);
@@ -49,13 +72,13 @@ void printControl(){
   Serial.println(F("p - print data to Serial"));
   Serial.println(F("r - record data"));
   Serial.println(F("t - test without logging"));
+  Serial.println(F("? - print this message"));
   Serial.println(F("type a number to set record duration"));
   Serial.println(F("\t 1 - 5 seconds"));
   Serial.println(F("\t 2 - 10 seconds"));
   Serial.println(F("\t 3 - 15 seconds"));
   Serial.println(F("\t 4 - 20 seconds"));
-  Serial.print(F("\t current record duration: "));
-  Serial.println(recordDuration);
+  printRecordDruation();
 }
 
 //------------------------------------------------------------------------------
