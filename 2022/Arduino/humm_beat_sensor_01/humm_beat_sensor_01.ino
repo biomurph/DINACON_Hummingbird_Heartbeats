@@ -87,7 +87,7 @@ void setup() {
   buttonValue = lastButtonValue = digitalRead(BUTTON_PIN);
   analogReadResolution(12);  // crank up the bits
   
-  Serial.begin(2000000);
+  Serial.begin(250000);
   // Wait for USB Serial
   while (!Serial) {
     yield();

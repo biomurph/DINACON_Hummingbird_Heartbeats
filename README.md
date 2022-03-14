@@ -22,47 +22,89 @@ the IBI value is the time between beats. the IBI associated with a heart rate of
 I'm starting with a Teensy 3.6 and the [ExFatLogger.ino](https://github.com/greiman/SdFat/tree/master/examples/ExFatLogger) example to get high speed SD card writing. The basic Arduino code is [there](https://github.com/biomurph/DINACON_Hummingbird_Heartbeats/tree/2022/2022/Arduino/humm_beat_sensor_01).
 
 ## Hardware
-Will not work if SD card is not installed. Unplug device, install SD card, plug in device.
+The device simply will not work if SD card is not installed! Unplug device, install SD card, plug in device.
 
+### Pulse Sensors
+The Pulse Sensors are 'sealed' with nail polish on the back. If you need to re-apply any sealant, you must use care so that the paint or sealant you use does not creep or wick around the LED in the middle of the board! Super important.
+The RED Pulse Sensor is the first data column, the BLUE Pulse Sensor is the second data column.
+On the front, they have a clear vinyl sticker. There are replacement stickers in the kit if you need to replace one.
+### Accelerometer
+The Accelerometer is also 'sealed' on the circuit side with nail polish. The accelerometer X, Y, and Z axis are the 3rd, 4th, and 5th data columns. See below for sample data.
+### Push Button
+The push button can be used to initiate a recording session. All it does is initiate. Recordings are timed. See below.
+### Coin Battery
+There is a coin battery holder that you can use to add a coin battery. The coin battery, when installed, will help the 
 ## User Guide
 
-Outline of use. 
-The interface allows you to access and manipulate binary files. 
-Hardware is powered via USB, and requires a connected Terminal or Data Visualizer to begin function. When you plug in the USB *without Terminal or Data Visualizer* the BLUE LED will be steady on. Once the port is connected, the BLUE LED will pulse/fade nicely saying it is ready. Set your serial port to 2000000 baud. 
+The interface allows you to create, access, and manipulate binary files. Sensor data is recorded to the SD card in a binary format to facilitate high speed logging.
 
-- Record sensor data to a binary file
-- List all the files in memory
-- Open an existing binary file
-- Convert a binary file and save it as a .csv file
-- Convert a binary file and print it to the serial port
-- Read sensor data without logging
-- Select duration of recording
-	- 5, 10, 15, 20 Seconds
-	- Stored in non volatile EEPROM
+Hardware is powered via USB, and requires a connected Terminal or Data Visualizer to begin operation.  When you plug in the USB *without Terminal or Data Visualizer* the BLUE LED will be steady on. Once the port is connected, the BLUE LED will pulse/fade nicely saying it is ready. Set your serial port to 250000 baud. These are the keyboard commands that you can use to control the device:
+
+	type: 
+	b - open existing bin file
+	c - convert file to csv
+	l - list files
+	p - print data to Serial
+	r - record data
+	t - test without logging
+	? - print this message
+	type a number to set record duration
+		 1 - 5 seconds
+		 2 - 10 seconds
+		 3 - 15 seconds
+		 4 - 20 seconds
 
 It is recommended to follow a specific series of steps to use the interface efficiently. Though it is not possible to screw it up really bad, it can be confusing without this guide. Here are the steps for success:
+### RECORDING DATA
 
-1. Insert a micro SC card that is formatted as ExFat (super important)
-2. Open up a serial port visualizer window
+1. Insert a micro SD card that is formatted as ExFat (super important)
+2. Open Arduino IDE
 3. Plug into USB computer
-4. other stuff
-5. After copying the data you want off the micro SD, make sure to empty your trash on the computer before unmounting the disk.
+4. Select the port from the Tools > Port drop down menu
+5. Open up the Arduino Serial Plotter (Command + Shift + L)
+6. Make sure your baud rate is set to 250000
+7. In the 'data to send' window, you can use the command set to control the device.
+8. Start by sending `t` to begin streaming data to the terminal for viewing and verification
+9. When you want to do any recording, press `r` to record. The data stream will halt while recording
+10. When record time is up, send `t` again to bring back the data stream
+11. Repeat steps to visualize and record as you like.
 
+**NOTE: There are messages that are sent before and after the data stream, so you might see 'glitching' at these transient times**
+
+***needs a pic of the Arduino Plotter with notes***
+
+### RETREIVING DATA
+
+1. Close the Serial Plotter, if it is open
+2. Open the Serial Monitor (Command + Shift + M)
+3. Send `l` to list the files that are on the disk
+4. Send `b` to request to open a binary file
+5. Type in the name of the binary file exactly: `Humm_01.bin` for example
+6. Once the file is open, send `c` to convert it into a `.csv` file
+7. The new `.csv` file will now be listed when you send `l`
+8. Rinse, repeat
+
+This code is super duper simple. There's no command to close a file, for example. Just trust that when you open a new file or start recording you will be closing the old one. When you've converted all of the files that you want to, unplug the device and remove the SD card. Use the included SD card reader dongle to retrieve the desired CSV files.
+After copying the data you want off the micro SD, you can clear the disk by moving all the files into your trash.
+
+**Make sure to empty your trash on the computer before un-mounting the disk to properly delete them from the disk**
+
+# Data
+Data is initially stored in .bin files. You need to manually convert them to .csv files for further processing.
+There are two file types and 4 file size options. The Serial Monitor will give you data on all of this when you list files or record with the monitor open. here are examples of file sizes in bytes for different record times
+
+Record Duration | BIN file size | CSV file size
+:--------------:|:-------------:|:------------:
+5 Seconds  |  100,502  |   280,524   |
+10 Seconds |  200,502  |   564,669   |
+15 Seconds |  300,502  |   847,828   |
+20 Seconds |  400,502  |   1,125,782   |
+
+The CSV data file will look like this
+
+![csv screenshot](2022/CSV_Data_Sample.png)
+
+The first column is a simple sample counter. It is only a byte, and it will roll over to `0` after it hits `255`. I've limited it's maximum size to make the Serial Plotter more manageable. The data is raw, and it's generated by a 12 bit ADC, so the range is from `0` to `4095`. All of the sensors will idle at approx 1/2 of the analog range. for the accelerometer values, the ADC value is directly linearly scalable to gs. `0` counts is -3.0g and `4095` counts is +3.0g
 	
 
-# Below is readme from 2019
 
-Helping [Jay Falk](https://www.birdmorph.com/) to measure Humming Bird Heartbeats with [Pulse Sensor](www.pulsesensor.com)
-Jay is a scientist who studies hummingbirds in Gamboa, Panama. It was recently discovered that hummingbirds (some, not all?) can vocalize, that is make sounds, up to 15KHz. At the same time, it is generally believed that birds can only hear sounds up to 8KHz. Jay wants to know if hummingbirds can hear in the higher registers that they make sounds in. His thought is that maybe the birds heart rate changes when they hear another bird call, and that if he can measure heart rate this might be a way to prove that they can hear in the higher registers.
-
-I have been making and selling Pulse Sensor, an optical heart rate monitor, since 2012. There happen to be a couple of Pulse Sensors at the Dinalab, and so very soon after I arrived at Dinacon, I got together with Jay to try and see if we could find a hummingbird heart beat with Pulse Sensor. 
-
-The Pulse Sensor uses the principal of [Photoplethysmography](https://en.wikipedia.org/wiki/Photoplethysmogram) to measure heart beats. Here is a page that discribes the [features](https://www.researchgate.net/figure/A-typical-waveform-of-the-PPG-and-its-characteristic-parameters-whereas-the-amplitude-of_fig9_230587653) of the waveform that we're looking for.
-
-Hummigbirds have a couple of 'bald spots' where hair doen't grow. Typically, most birds don't have feathers on their lower abdomen in order to make a good connection to their eggs when incubating them. Also, Hummingbirds have no feathers right behind their crop on the back of their heads. We decided we would try both of those spots.
-
-I used two Pulse Sensors. One was just a normal Pulse Sensor, and the other I modified by taking off the LED. I did this in order to test a reflective Pulse Sensor (the way they normally work) and a transmissive Pulse Sensor, where I used the light from the normal Pulse Sensor to send a signal through the body of the bird. It became clear very soon that the reflective Pulse Sensor was the best option.
-
-We did se a signal when we placed the Pulse Sensor on the belly bald spot, however it was difficult to tell if we were reading the heartbeat or the breathing. Placing the Pulse Sensor on the bald spot behind the crop was much more successful, and we think we did see a heartbeat in that location.
-
-Here is a [LINK](https://www.dropbox.com/sh/dgatqx7pgcjl1rp/AABGw35ZrMt65FjiA4dyHX-6a?dl=0) to a dropbox that has videos from the experiment.

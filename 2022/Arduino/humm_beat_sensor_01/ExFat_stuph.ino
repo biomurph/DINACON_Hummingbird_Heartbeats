@@ -8,7 +8,7 @@ int logRecord(data_t* data, uint16_t overrun) {
     return -1;
   } else {
     timeIn = micros();
-    for (size_t i = 0; i < ADC_COUNT; i++) {
+    for(size_t i=0; i<ADC_COUNT; i++) {
       data->adc[i] = analogRead(i);
     }
   }
@@ -51,10 +51,10 @@ String getChannelString(int i){
   String s = "";
   switch(i){
     case 0:
-      s = F(",Pulse 1");
+      s = F(",Pulse RED");
       break;
     case 1:
-      s = F(",Pulse 2");
+      s = F(",Pulse BLUE");
       break;
     case 2:
       s = F(",Accel X");
@@ -229,8 +229,8 @@ void logData() {
   binFile.sync();
   Serial.print(("File size: "));
   // Warning cast used for print since fileSize is uint64_t.
-  Serial.print((uint32_t)binFile.fileSize());
-  Serial.println(F(" bytes"));
+  Serial.print((uint32_t)binFile.fileSize()/1000);
+  Serial.println(F(" kilobytes"));
   Serial.print(F("totalOverrun: "));
   Serial.println(totalOverrun);
   Serial.print(F("FIFO_DIM: "));
@@ -339,6 +339,7 @@ void createBinFile() {
   if (!binFile.open(binName, O_RDWR | O_CREAT)) {
     error("open binName failed");
   }
+  Serial.print(F("recording to file: "));
   Serial.println(binName);
   if (!binFile.preAllocate(PREALLOCATE_SIZE)) {
     error("preAllocate failed");
@@ -347,6 +348,9 @@ void createBinFile() {
   Serial.print(F("preAllocated: "));
   Serial.print(PREALLOCATE_SIZE_MiB);
   Serial.println(F(" MiB"));
+  Serial.print(F("record duration: "));
+  Serial.print(recordDuration/1000);
+  Serial.println(F(" Seconds"));
 }
 
 

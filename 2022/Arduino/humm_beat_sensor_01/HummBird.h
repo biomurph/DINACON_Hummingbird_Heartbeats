@@ -36,22 +36,25 @@ const uint32_t PREALLOCATE_SIZE_MiB = 1024UL;
 
 // LED to light if overruns occur.
 #define ERROR_LED_PIN 13
-#define DEFAULT_RECORD_DURATION 5000
-#define STARTUP_DURATION  -3
 const uint8_t SD_CS_PIN = 4;  // SS;
-#define BUTTON_PIN  29
+#define BUTTON_PIN  23
 #define BLU_LED 10
 #define RED_LED 3
 #define SAMPLE_CLK_PIN 24
+
+#define DEFAULT_RECORD_DURATION 5000
+#define STARTUP_DURATION  -3
 #define LED_CYCLE 256*3 // half cycle led fade power of 2 please
 #define RECORD_OFF 1
 #define RECORD_ON  2
-#define PULSE_1 0
-#define PULSE_2 1
+#define PULSE_RED 0
+#define PULSE_BLU 1
 #define ACCEL_X 2
 #define ACCEL_Y 3
 #define ACCEL_Z 4
 #define DURATION_ADDRESS 1
+#define MAX_G 3.0
+#define MIN_G -3.0
 
 //#define RECORD_DURATION 5000  // time to record data in milliseconds
 
