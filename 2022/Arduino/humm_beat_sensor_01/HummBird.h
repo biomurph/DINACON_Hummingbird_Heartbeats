@@ -56,8 +56,8 @@ const uint8_t SD_CS_PIN = 4;  // SS;
 #define MAX_G 3.0
 #define MIN_G -3.0
 
-//#define RECORD_DURATION 5000  // time to record data in milliseconds
-
+// You may modify the filename.  Digits before the dot are file versions.
+char binName[] = "Humm_00.bin";
 
 unsigned long lastFadeTime;
 int LEDfadeValue = 255;

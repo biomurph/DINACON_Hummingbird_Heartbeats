@@ -1,4 +1,6 @@
 //==============================================================================
+
+
 // Replace logRecord(), printRecord(), and ExFatLogger.h for your sensors.
 int logRecord(data_t* data, uint16_t overrun) {
   if (overrun) {
@@ -19,9 +21,11 @@ int logRecord(data_t* data, uint16_t overrun) {
 void printRecord(Print* pr, data_t* data) {
   static uint8_t nr = 0;
   if (!data) {
-    pr->print(F("LOG_INTERVAL_USEC,"));
+    pr->print(F("%LOG_INTERVAL_USEC,"));
     pr->println(LOG_INTERVAL_USEC);
-    pr->print(F("Sample Counter"));
+    pr->print(F("%FILE_NAME,")); pr->println(binName);
+    pr->print(F("%RECORD_DURATION")); pr->println(recordDuration/1000);
+    pr->print(F("%Sample Counter"));
     for (size_t i = 0; i < ADC_COUNT; i++) {
       pr->print(getChannelString(i));
     }
@@ -44,7 +48,6 @@ void printRecord(Print* pr, data_t* data) {
     pr->println();
   }
 }
-
 
 //==============================================================================
 String getChannelString(int i){
@@ -73,18 +76,6 @@ String getChannelString(int i){
 }
 
 //==============================================================================
-
-// You may modify the filename.  Digits before the dot are file versions.
-char binName[] = "Humm_00.bin";
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-
-
-
-
 
 void openBinFile() {
   char name[FILE_NAME_DIM];
@@ -212,42 +203,29 @@ void logData() {
         maxFifoUse = fifoCount;
       }
       fifoCount -= nw;
-      // vvvvvvvvvvvvvvv
       // escape routines
-      // ^^^^^^^^^^^^^^^
+      // vvvvvvvvvvvvvvv
       if (Serial.available()) { break; }
 ////     if (getButtonState() != RECORD_ON) { break; } // DO NOT USE needs reliable fast switch to impliment 
-
 // recordDuration set in EEPROM or update via serial port
       if (millis() - m >= recordDuration) { break; }
+      // ^^^^^^^^^^^^^^^
+      // escape routines
     }
   }
-  Serial.print(F("\nLog time: "));
-  Serial.print(0.001*(millis() - m));
-  Serial.println(F(" Seconds"));
+  Serial.print(F("\nLog time Seconds: ")); Serial.print(0.001*(millis() - m));
+  Serial.print(F("File size: "));
+  Serial.print((uint32_t)binFile.fileSize()/1000); Serial.println(F(" Kbytes"));
+  Serial.print(F("totalOverrun: ")); Serial.println(totalOverrun);
+  Serial.print(F("FIFO_DIM: ")); Serial.println(FIFO_DIM);
+  Serial.print(F("maxFifoUse: ")); Serial.println(maxFifoUse);
+  Serial.print(F("maxLogMicros: ")); Serial.println(maxLogMicros);
+  Serial.print(F("maxWriteMicros: ")); Serial.println(maxWriteMicros);
+  Serial.print(F("Log interval micros: ")); Serial.println(LOG_INTERVAL_USEC);
+  Serial.print(F("maxDelta micros: ")); Serial.println(maxDelta);
+  Serial.print(F("maxAnalogReadMicros: ")); Serial.println(maxAnalogReadMicros);
   binFile.truncate();
   binFile.sync();
-  Serial.print(("File size: "));
-  // Warning cast used for print since fileSize is uint64_t.
-  Serial.print((uint32_t)binFile.fileSize()/1000);
-  Serial.println(F(" kilobytes"));
-  Serial.print(F("totalOverrun: "));
-  Serial.println(totalOverrun);
-  Serial.print(F("FIFO_DIM: "));
-  Serial.println(FIFO_DIM);
-  Serial.print(F("maxFifoUse: "));
-  Serial.println(maxFifoUse);
-  Serial.print(F("maxLogMicros: "));
-  Serial.println(maxLogMicros);
-  Serial.print(F("maxWriteMicros: "));
-  Serial.println(maxWriteMicros);
-  Serial.print(F("Log interval: "));
-  Serial.print(LOG_INTERVAL_USEC);
-  Serial.print(F(" micros\nmaxDelta: "));
-  Serial.print(maxDelta);
-  Serial.println(F(" micros"));
-  Serial.print(F("maxAnalogReadMicros: "));
-  Serial.println(maxAnalogReadMicros);
 }
 
 //-------------------------------------------------------------------------------
