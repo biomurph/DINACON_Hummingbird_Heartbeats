@@ -60,16 +60,19 @@ void testSensor() {
   data_t data;
   clearSerialInput();
   Serial.println(F("\nTesting - type any character to stop\n"));
-  delay(1000);
+  delay(500);
   printRecord(&Serial, nullptr);
   uint32_t m = micros();
-  while (!Serial.available()) {
+  while (!isRunning) {
     m += interval;
     do {
       diff = m - micros();
+      getButtonState();
+      fadeLED(millis());
     } while (diff > 0);
     logRecord(&data, 0);
     printRecord(&Serial, &data);
+    if(Serial.available()){ break; } 
   }
 }
 //------------------------------------------------------------------------------
@@ -80,6 +83,7 @@ void setup() {
     digitalWrite(ERROR_LED_PIN, HIGH);
   }
   pinMode(SAMPLE_CLK_PIN,OUTPUT); digitalWrite(SAMPLE_CLK_PIN,LOW);
+  pinMode(ACCEL_TEST_PIN,OUTPUT); digitalWrite(ACCEL_TEST_PIN,LOW);
   sampleClockPinState = false;
   pinMode(BLU_LED,OUTPUT); analogWrite(BLU_LED,255);
   pinMode(RED_LED,OUTPUT); digitalWrite(RED_LED,LOW);
@@ -134,7 +138,11 @@ void loop() {
   serialCheck();
   if(isRunning){
     createBinFile(); logData();
-    // logData jumps to a loop that waits for Serial to break. Also breakable by 
+    // logData jumps to a loop that waits for Serial or a time out to break
     isRunning = false;
+  }
+  if(freeRunningTest){
+    testSensor();
+    freeRunningTest = false;
   }
 }

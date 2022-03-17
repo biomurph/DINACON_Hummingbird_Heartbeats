@@ -25,7 +25,7 @@ void printRecord(Print* pr, data_t* data) {
     pr->println(LOG_INTERVAL_USEC);
     pr->print(F("%FILE_NAME,")); pr->println(binName);
     pr->print(F("%RECORD_DURATION")); pr->println(recordDuration/1000);
-    pr->print(F("%Sample Counter"));
+    pr->print(F("%Sample_Counter"));
     for (size_t i = 0; i < ADC_COUNT; i++) {
       pr->print(getChannelString(i));
     }
@@ -54,19 +54,19 @@ String getChannelString(int i){
   String s = "";
   switch(i){
     case 0:
-      s = F(",Pulse RED");
+      s = F(",Pulse_RED");
       break;
     case 1:
-      s = F(",Pulse BLUE");
+      s = F(",Pulse_BLUE");
       break;
     case 2:
-      s = F(",Accel X");
+      s = F(",Accel_X");
       break;
     case 3:
-      s = F(",Accel Y");
+      s = F(",Accel_Y");
       break;
     case 4:
-      s = F(",Accel Z");
+      s = F(",Accel_Z");
       break;
     default: 
       s = F(",Channel Name Error");
@@ -213,7 +213,7 @@ void logData() {
       // escape routines
     }
   }
-  Serial.print(F("\nLog time Seconds: ")); Serial.print(0.001*(millis() - m));
+  Serial.print(F("\nLog time Seconds: ")); Serial.println(0.001*(millis() - m));
   Serial.print(F("File size: "));
   Serial.print((uint32_t)binFile.fileSize()/1000); Serial.println(F(" Kbytes"));
   Serial.print(F("totalOverrun: ")); Serial.println(totalOverrun);

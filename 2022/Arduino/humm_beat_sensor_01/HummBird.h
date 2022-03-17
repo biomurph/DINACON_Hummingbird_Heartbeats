@@ -41,6 +41,7 @@ const uint8_t SD_CS_PIN = 4;  // SS;
 #define BLU_LED 10
 #define RED_LED 3
 #define SAMPLE_CLK_PIN 24
+#define ACCEL_TEST_PIN 21 
 
 #define DEFAULT_RECORD_DURATION 5000
 #define STARTUP_DURATION  -3
@@ -70,6 +71,7 @@ int lastButtonValue, buttonValue;
 int buttonState = RECORD_OFF;
 unsigned long timeIn;
 int timeOut;
+boolean freeRunningTest = false;
 
 
 #endif

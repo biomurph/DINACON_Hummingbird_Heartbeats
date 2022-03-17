@@ -27,7 +27,7 @@ void serialCheck(){
         isRunning = true; fadeLED(millis());
         break;
       case 't':
-        testSensor(); break;
+        freeRunningTest = true; break;
       case '1':
         recordDuration = setRecordDuration(5000); 
         printRecordDruation();
